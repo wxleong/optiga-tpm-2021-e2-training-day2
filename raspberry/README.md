@@ -70,7 +70,7 @@ This is an exercise using the [AWS IoT Device SDK](https://github.com/aws/aws-io
 1. Install dependencies (e.g., [AWS Command Line Interface](https://aws.amazon.com/cli/), [command-line JSON processor](https://stedolan.github.io/jq/)).
     ```
     $ sudo apt update
-    $ sudo apt install awscli jq git cmake
+    $ sudo apt install awscli jq git cmake curl
     ```
 
 2. Set AWS account credential and region.
@@ -121,7 +121,7 @@ This is an exercise using the [AWS IoT Device SDK](https://github.com/aws/aws-io
     $ ./3_create_awsiot_thing.sh
     $ ls out/
     ```
-    You will receive AmazonRootCA1.pem.crt (ca certificate) and software.crt (device certificate).
+    You will receive AmazonRootCA1.pem.crt (ca certificate) and software.crt (device certificate) in the directory `~/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out`.
 
 5. Sign in to your [AWS IoT account](https://ap-southeast-1.console.aws.amazon.com/). Select the option of `IAM user`.
     <p align="center">
@@ -193,9 +193,9 @@ This is an exercise using the [AWS IoT Device SDK](https://github.com/aws/aws-io
       -DAWS_IOT_ENDPOINT="<ENDPOINT-FROM-STEP-3>" \
       -DTHING_NAME="<THINGNAME-FROM-STEP-4>" \
       -DCLIENT_IDENTIFIER="<YOUR-NAME>" \
-      -DROOT_CA_CERT_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/AmazonRootCA1.pem.crt" \
-      -DCLIENT_PRIVATE_KEY_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.key" \
-      -DCLIENT_CERT_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.crt"
+      -DROOT_CA_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/AmazonRootCA1.pem.crt" \
+      -DCLIENT_PRIVATE_KEY_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.key" \
+      -DCLIENT_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.crt"
     ```
     The John Doe sample:
     ```
@@ -203,9 +203,9 @@ This is an exercise using the [AWS IoT Device SDK](https://github.com/aws/aws-io
       -DAWS_IOT_ENDPOINT="4389ntvsaefag8-ats.iot.ap-southeast-1.amazonaws.com" \
       -DTHING_NAME="tpm-e2-training-day2-thing-john-doe" \
       -DCLIENT_IDENTIFIER="john-doe" \
-      -DROOT_CA_CERT_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/AmazonRootCA1.pem.crt" \
-      -DCLIENT_PRIVATE_KEY_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.key" \
-      -DCLIENT_CERT_PATH="/home/pi/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.crt"
+      -DROOT_CA_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/AmazonRootCA1.pem.crt" \
+      -DCLIENT_PRIVATE_KEY_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.key" \
+      -DCLIENT_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/exercise-4-software-key-aws-iot/out/software.crt"
     ```
     The output should look like this:
     <p align="center">
@@ -241,7 +241,7 @@ This is an exercise using the [AWS IoT Device SDK](https://github.com/aws/aws-io
 
 # Final Assessment
 
-Improve the [AWS IoT Device SDK](https://github.com/aws/aws-iot-device-sdk-embedded-c) by using TPM-based keys instead of unprotected software-based keys. <br>
+Improve the [AWS IoT Device SDK](https://github.com/aws/aws-iot-device-sdk-embedded-c) by switching from software-based key to TPM-based key. <br>
 
 Use only the [Microsoft TPM 2.0 Simulator](https://github.com/wxleong/optiga-tpm-2021-e2-training-day1/tree/master/raspberry#setup-microsoft-tpm-20-simulator) for this assessment.
 
@@ -255,51 +255,27 @@ Use the provided scripts to perform TPM provisioning and onboarding to AWS IoT C
 
 Workflow:
 1. Launch Microsoft TPM 2.0 Simulator.
-2. Complete the TPM provisioning and onboarding to AWS IoT Core using the provided scripts. You will receive a CA certificate (AmazonRootCA1.pem.crt) and a device certificate (tpm.crt).
-
-<ins><b>Completed Milestone-1</b></ins>
-<hr>
-
-3. Integrate TPM engine into AWS IoT Device SDK by editing file `~/aws-iot-device-sdk-embedded-c/platform/posix/transport/src/openssl_posix.c` then rebuild the source (step 9). <br>
+2. Complete the TPM provisioning and onboarding to AWS IoT Core using the provided scripts (remember to edit the config file to add your name). You will receive a CA certificate (AmazonRootCA1.pem.crt) and a device certificate (tpm.crt). You will find them in the directory `~/optiga-tpm-2021-e2-training-day2/raspberry/assessment-mssim-aws-iot/out/`.
+3. Regenerate the Makefile (step 8) using following commands, remember to update the parameters:
+    ```
+    $ cd ~/aws-iot-device-sdk-embedded-c
+    $ cmake -S. -Bbuild \
+     -DAWS_IOT_ENDPOINT="<ENDPOINT-FROM-STEP-3>" \
+     -DTHING_NAME="<THINGNAME-FROM-STEP-4>" \
+     -DCLIENT_IDENTIFIER="<YOUR-NAME>" \
+     -DROOT_CA_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/assessment-mssim-aws-iot/out/AmazonRootCA1.pem.crt" \
+     -DCLIENT_PRIVATE_KEY_PATH="/ignored" \
+     -DCLIENT_CERT_PATH="${HOME}/optiga-tpm-2021-e2-training-day2/raspberry/assessment-mssim-aws-iot/out/tpm.crt"
+    ```
+4. Integrate TPM engine into AWS IoT Device SDK by editing file `~/aws-iot-device-sdk-embedded-c/platform/posix/transport/src/openssl_posix.c` then rebuild the source (step 9). <br>
     Hint: search for `ENABLE_TPM_TSS_ENGINE` in exercise-3 `client.c`.
-4. Run the demo application mqtt_demo_mutual_auth (step 10) and confirm the message "Hello World!" appeared on your MQTT test client web page (step 11).
-
-<ins><b>Completed Milestone-2</b></ins>
-<hr>
-
-5. Submission checklist:
+5. Run the demo application mqtt_demo_mutual_auth (step 10) and confirm the message "Hello World!" appeared on your MQTT test client web page (step 11).
+6. Submission checklist:
 
     **Warning: after submission do not delete your onboarded device from AWS IoT Core (not to execute script 4_clean_awsiot_thing.sh).**
 
-
-    1. Microsoft TPM 2.0 simulator storage file (`NVChip`)
-    2. AWS IoT Core issued device certificate (tpm.crt)
-    3. Value of ThingName
-    4. Value of PolicyName
-    5. Value of CLIENT_IDENTIFIER
-    6. Screenshot the MQTT test client page showing the "Hello World!" message and the topic (step 11). You may also use a phone to capture the picture but make sure that the text is visible.
-    7. Show the code change by:
-        - Option 1: Execute the command `$ git diff` and submit the output in a file
-            ```
-            $ cd ~/aws-iot-device-sdk-embedded-c
-            $ git diff
-            ```
-        - Option 2: Submit only the edited source files 
-<!--
-5. Disable TPM platform hierarchy.
-    - First, include the TSS shared library in the build by editing the file `~/aws-iot-device-sdk-embedded-c/demos/mqtt/mqtt_demo_mutual_auth/CMakeLists.txt`:
-        ```
-        target_link_libraries(
-            ${DEMO_NAME}
-            PRIVATE
-                clock_posix
-                openssl_posix
-        +       tss2-tctildr
-        +       tss2-esys
-        +       tss2-rc
-        )
-        ```
-    - Regenerate the Makefile (step 8) after editing the `CMakeLists.txt`. <br>
-    - Now, your job is to modify the application (`~/aws-iot-device-sdk-embedded-c/demos/mqtt/mqtt_demo_mutual_auth`) then rebuild the source (step 9). Finally, run the demo application (step 10) and confirm it is still working. Check if the platform hierarchy is disabled using the command `tpm2_getcap properties-variable`.<br>
-    <ins><b>[[Completed final Milestone-3]]</ins></b>
--->
+    1. Screenshot the MQTT test client page showing the "Hello World!" message and the topic `<CLIENT_IDENTIFIER>/example/topic`, sample:
+        <p align="center">
+            <img src="https://github.com/wxleong/optiga-tpm-2021-e2-training-day2/blob/master/media/iot-core-test-page.jpg" width="70%">
+        </p>
+    2. The file `~/aws-iot-device-sdk-embedded-c/platform/posix/transport/src/openssl_posix.c` 

@@ -75,13 +75,15 @@ SSL_CTX *create_context()
     return ctx;
 }
 
-void configure_context(SSL_CTX *ctx, const char *clientCert, const char *clientKey, 
+void configure_context(SSL_CTX *pSslContext, const char *clientCert, const char *clientKey, 
                        const char *caCert)
 {
-    SSL_CTX_set_ecdh_auto(ctx, 1);
+    int32_t sslStatus = -1;
+
+    SSL_CTX_set_ecdh_auto(pSslContext, 1);
 
     /* Set the client cert */
-    if (SSL_CTX_use_certificate_chain_file(ctx, clientCert) <= 0) {
+    if (SSL_CTX_use_certificate_chain_file(pSslContext, clientCert) <= 0) {
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
     }
@@ -135,22 +137,25 @@ void configure_context(SSL_CTX *ctx, const char *clientCert, const char *clientK
             exit(EXIT_FAILURE);
         }
 
-        pKey = ENGINE_load_private_key(pEngine, clientKey, pUiMethod, NULL);
-        if (SSL_CTX_use_PrivateKey(ctx, pKey) <= 0) {
+        pKey = ENGINE_load_private_key(pEngine, "0x81000001", pUiMethod, NULL);
+        
+        sslStatus = SSL_CTX_use_PrivateKey(pSslContext, pKey);
+        if (sslStatus <= 0) {
             ERR_print_errors_fp(stderr);
             exit(EXIT_FAILURE);
         }
     }
 #else
+    (void)sslStatus;
     /* Set software-based key */
-    if (SSL_CTX_use_PrivateKey_file(ctx, clientKey, SSL_FILETYPE_PEM) <= 0 ) {
+    if (SSL_CTX_use_PrivateKey_file(pSslContext, clientKey, SSL_FILETYPE_PEM) <= 0 ) {
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
     }
 #endif
 
-    //SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL); // not to verify server 
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL); // to verify server certificate
+    //SSL_CTX_set_verify(pSslContext, SSL_VERIFY_NONE, NULL); // not to verify server 
+    SSL_CTX_set_verify(pSslContext, SSL_VERIFY_PEER, NULL); // to verify server certificate
 
     /* Set CA certificate for server verification */
     {
@@ -167,7 +172,7 @@ void configure_context(SSL_CTX *ctx, const char *clientCert, const char *clientK
             exit(EXIT_FAILURE);
         }
 
-        if (X509_STORE_add_cert(SSL_CTX_get_cert_store(ctx), rootCa) <= 0) {
+        if (X509_STORE_add_cert(SSL_CTX_get_cert_store(pSslContext), rootCa) <= 0) {
             perror("Unable to load CA certificate");
             exit(EXIT_FAILURE);
         }
