@@ -274,8 +274,8 @@ Workflow:
 
     **Warning: after submission do not delete your onboarded device from AWS IoT Core (not to execute script 4_clean_awsiot_thing.sh).**
 
-    1. Screenshot the MQTT test client page showing the "Hello World!" message and the topic `<CLIENT_IDENTIFIER>/example/topic`, sample:
+    1. Screenshot the terminal running the application mqtt_demo_mutual_auth showing the "Hello World!" message. The output should look like this:
         <p align="center">
-            <img src="https://github.com/wxleong/optiga-tpm-2021-e2-training-day2/blob/master/media/iot-core-test-page.jpg" width="70%">
+            <img src="https://github.com/wxleong/optiga-tpm-2021-e2-training-day2/blob/master/media/aws-iot-sdk-sample-app.jpg" width="100%">
         </p>
     2. The file `~/aws-iot-device-sdk-embedded-c/platform/posix/transport/src/openssl_posix.c` 
